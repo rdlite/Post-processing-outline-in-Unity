@@ -34,7 +34,7 @@ public class OutlineFeature : ScriptableRendererFeature
     private RTHandle _bluredTexture;
     private RTHandle _renderTexture;
 
-    private MyRenderObjectsPass _renderPass;
+    private RenderMultipleObjectsPass _renderPass;
     private BlurPass _blurPass;
     private OutlinePass _outlinePass;
 
@@ -65,7 +65,7 @@ public class OutlineFeature : ScriptableRendererFeature
 
     public override void Create()
     {
-        _renderPass = new MyRenderObjectsPass(ref _renderTexture, ref _layersToRender, _renderSettings.LayerMaterial);
+        _renderPass = new RenderMultipleObjectsPass(ref _renderTexture, ref _layersToRender, _renderSettings.LayerMaterial);
         _blurPass = new BlurPass(ref _bluredTexture, _blurSettings.BlurMaterial, _blurSettings.DownSample, _blurSettings.PassesCount, _renderPass);
         _outlinePass = new OutlinePass(_outlineMaterial, _renderPass, _blurPass);
 

@@ -8,11 +8,11 @@ public class OutlinePass : ScriptableRenderPass
     private Material _material;
     private BlurPass _blurPass;
     private RTHandle _destination;
-    private MyRenderObjectsPass _renderObjectsPass;
+    private RenderMultipleObjectsPass _renderObjectsPass;
     private ProfilingSampler _profilingSampler;
 
     public OutlinePass(
-        Material material, MyRenderObjectsPass renderObjectsPass, BlurPass blurPass)
+        Material material, RenderMultipleObjectsPass renderObjectsPass, BlurPass blurPass)
     {
         _material = material;
         _blurPass = blurPass;

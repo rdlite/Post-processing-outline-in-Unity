@@ -1,10 +1,8 @@
 using UnityEngine;
-using static OutlineSetter;
 
 public class Outliner : MonoBehaviour
 {
-    public LayerMask Mask;
-
+    [SerializeField] private OutlineConfigs _outlineConfig;
     private OutlineSetter _outlineSetter;
     private int _defaultLayer;
     private int _outlineLayerID;
@@ -12,7 +10,7 @@ public class Outliner : MonoBehaviour
 
     private void Awake()
     {
-        _outlineLayerID = (int)Mathf.Log(Mask.value, 2);
+        _outlineLayerID = (int)Mathf.Log(_outlineConfig.Layer.value, 2);
         _defaultLayer = gameObject.layer;
 
         _outlineSetter = FindObjectOfType<OutlineSetter>();
@@ -25,18 +23,9 @@ public class Outliner : MonoBehaviour
 
         if (hitInfo.transform != null && hitInfo.transform == transform && !_isActive)
         {
-            //if (!_currentProcessingOutlines.Contains(outliner))
-            //{
-            //    _currentProcessingOutlines.Add(outliner);
-            //}
+            SetActiveLayer(true);
+            _outlineSetter.outlineFeature.AddLayerToRender(_outlineConfig.Layer, _outlineConfig.Color);
 
-            LayerColorMap layerData = _outlineSetter.GetMapByLayer(Mask);
-
-            if (layerData != null)
-            {
-                SetActiveLayer(true);
-                _outlineSetter.outlineFeature.AddLayerToRender(layerData.Mask, layerData.Color);
-            }
         }
         else if (_isActive && (hitInfo.transform == null || hitInfo.transform != transform))
         {

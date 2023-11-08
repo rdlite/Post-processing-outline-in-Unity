@@ -14,11 +14,11 @@ public class BlurPass : ScriptableRenderPass
     private RTHandle _destination;
 
     private int _passesCount;
-    private MyRenderObjectsPass _objectsPass;
+    private RenderMultipleObjectsPass _objectsPass;
     private int _downSample;
     private Material _blurMaterial;
 
-    public BlurPass(ref RTHandle destination, Material blurMaterial, int downSample, int passesCount, MyRenderObjectsPass objectsPass)
+    public BlurPass(ref RTHandle destination, Material blurMaterial, int downSample, int passesCount, RenderMultipleObjectsPass objectsPass)
     {
         _destination = destination;
         _blurMaterial = blurMaterial;

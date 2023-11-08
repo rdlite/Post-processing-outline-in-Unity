@@ -1,4 +1,4 @@
-Shader "Custom/Blur"
+Shader "Custom/Outline/Blur"
 {
 	Properties
 	{

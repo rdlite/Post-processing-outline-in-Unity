@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class MyRenderObjectsPass : ScriptableRenderPass
+public class RenderMultipleObjectsPass : ScriptableRenderPass
 {
     private List<ShaderTagId> _shaderTagIdList = new List<ShaderTagId>() { new ShaderTagId("UniversalForward"), new ShaderTagId("SRPDefaultUnlit"), new ShaderTagId("UniversalForwardOnly") };
 
@@ -16,7 +16,7 @@ public class MyRenderObjectsPass : ScriptableRenderPass
     private Dictionary<LayerMask, Color> _layersToRender = new Dictionary<LayerMask, Color>();
     private int BASE_COLOR_HASH = Shader.PropertyToID("_BaseColor");
 
-    public MyRenderObjectsPass(ref RTHandle destination, ref Dictionary<LayerMask, Color> layersToRender, Material layerMaterial)
+    public RenderMultipleObjectsPass(ref RTHandle destination, ref Dictionary<LayerMask, Color> layersToRender, Material layerMaterial)
     {
         _destination = destination;
         _layersToRender = layersToRender;
