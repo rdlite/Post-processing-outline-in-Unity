@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
+using QOutline.Core;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 using UnityEngine.Rendering.Universal;
 
 public class RenderMultipleObjectsPass : ScriptableRenderPass

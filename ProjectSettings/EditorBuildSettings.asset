@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/RFOutline.unity
+    path: Assets/QOutline/Scenes/RFOutline.unity
     guid: 5046c056eea88034894ae7b324acb61e
   m_configObjects: {}
