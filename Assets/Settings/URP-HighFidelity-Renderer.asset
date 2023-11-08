@@ -15,12 +15,11 @@ MonoBehaviour:
   m_Active: 1
   _renderTextureName: _OutlineRenderTexture
   _renderSettings:
-    LayerMaterial: {fileID: 2100000, guid: f6aea42920613764fae212d304fc336f, type: 2}
     ShowInSceneView: 0
   _bluredTextureName: '_OutlineBluredTexture '
   _blurSettings:
     BlurMaterial: {fileID: 2100000, guid: f4e6dcba2f0ef224eb3bb1841331ebfe, type: 2}
-    DownSample: 2
+    DownSample: 1
     PassesCount: 4
   _outlineMaterial: {fileID: 2100000, guid: 88d7b72ebd3eb3147a28af1e2d1b946e, type: 2}
   _renderPassEvent: 550

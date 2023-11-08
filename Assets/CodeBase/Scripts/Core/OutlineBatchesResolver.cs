@@ -9,11 +9,15 @@ public class OutlineBatchesResolver
 
     private static int BASE_COLOR_HASH = Shader.PropertyToID("_BaseColor");
     private static int ALPHA_COLOR_HASH = Shader.PropertyToID("_AlphaPercentage");
-    private static OutlineFeature _renderFeature;
 
-    public OutlineBatchesResolver(OutlineFeature renderFeature)
+    private static OutlineFeature _renderFeature;
+    private static LayerMask _disposeOutlineLayerMaskk;
+
+    public OutlineBatchesResolver(
+        OutlineFeature renderFeature, LayerMask disposeOutlineLayer)
     {
         _renderFeature = renderFeature;
+        _disposeOutlineLayerMaskk = disposeOutlineLayer;
     }
 
     public static int AddBacth(OutlineDataToStore data)
@@ -23,6 +27,8 @@ public class OutlineBatchesResolver
         if (batch != null)
         {
             batch.IsDisposing = false;
+            batch.CurrentRenderLayer = data.Configs.Layer;
+            SetRenderersLayer(batch.Data.Renderers, GetLayerID(data.Configs.Layer));
 
             return batch.IDCounter;
         }
@@ -43,15 +49,8 @@ public class OutlineBatchesResolver
         OutlineBatch newBatch = new OutlineBatch(IDCounter, data, batchMaterial);
         _batches.Add(newBatch);
 
-        int outlineLayerID = (int)Mathf.Log(data.Configs.Layer.value, 2);
-
-        for (int i = 0; i < data.Renderers.Count; i++)
-        {
-            if (data.Renderers[i] != null)
-            {
-                data.Renderers[i].gameObject.layer = outlineLayerID;
-            }
-        }
+        newBatch.CurrentRenderLayer = data.Configs.Layer;
+        SetRenderersLayer(newBatch.Data.Renderers, GetLayerID(data.Configs.Layer));
 
         _renderFeature.AddLayerToRender(newBatch);
 
@@ -60,7 +59,12 @@ public class OutlineBatchesResolver
 
     public static void RemoveBatch(int id)
     {
-        GetBatchOfID(id).IsDisposing = true;
+        OutlineBatch batch = GetBatchOfID(id);
+
+        batch.IsDisposing = true;
+        batch.CurrentRenderLayer = _disposeOutlineLayerMaskk;
+
+        SetRenderersLayer(batch.Data.Renderers, GetLayerID(_disposeOutlineLayerMaskk));
     }
 
     public void Tick()
@@ -104,17 +108,22 @@ public class OutlineBatchesResolver
 
     private void DisposeBatch(OutlineBatch batch)
     {
-        for (int i = 0; i < batch.Data.Renderers.Count; i++)
-        {
-            if (batch.Data.Renderers[i] != null)
-            {
-                batch.Data.Renderers[i].gameObject.layer = batch.Data.DefaultLayerMask;
-            }
-        }
+        SetRenderersLayer(batch.Data.Renderers, batch.Data.DefaultLayerID);
 
         _renderFeature.RemoveLayerFromRender(batch);
 
         _batches.Remove(batch);
+    }
+
+    private static void SetRenderersLayer(List<Renderer> renderers, LayerMask layer)
+    {
+        for (int i = 0; i < renderers.Count; i++)
+        {
+            if (renderers[i] != null)
+            {
+                renderers[i].gameObject.layer = layer;
+            }
+        }
     }
 
     private static OutlineBatch GetBatchOfID(int id)
@@ -130,19 +139,24 @@ public class OutlineBatchesResolver
         return null;
     }
 
+    private static int GetLayerID(LayerMask mask)
+    {
+        return (int)Mathf.Log(mask.value, 2);
+    }
+
     public class OutlineDataToStore
     {
         public int IDCounter;
         public OutlineConfigs Configs;
         public List<Renderer> Renderers;
-        public LayerMask DefaultLayerMask;
+        public int DefaultLayerID;
 
-        public OutlineDataToStore(int id, OutlineConfigs configs, List<Renderer> renderers, LayerMask defaultLayerMask)
+        public OutlineDataToStore(int id, OutlineConfigs configs, List<Renderer> renderers, int defaultLayerMask)
         {
             IDCounter = id;
             Configs = configs;
             Renderers = renderers;
-            DefaultLayerMask = defaultLayerMask;
+            DefaultLayerID = defaultLayerMask;
         }
     }
 
@@ -152,6 +166,7 @@ public class OutlineBatchesResolver
         public bool IsDisposing;
         public OutlineDataToStore Data;
         public Material OverrideMaterial;
+        public LayerMask CurrentRenderLayer;
         public float Time;
 
         public OutlineBatch(int id, OutlineDataToStore data, Material overrideMaterial)

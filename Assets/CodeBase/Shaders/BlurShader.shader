@@ -50,10 +50,11 @@ Shader "Custom/Outline/Blur"
 				float2 uv = UnityStereoTransformScreenSpaceTex(input.uv);
 
 				half4 color = SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv);
-				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2(-1, 1) * offset);
-				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2( 1, 1) * offset);
-				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2( 1,-1) * offset);
-				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2(-1,-1) * offset);
+				float pixelOffset = 2;
+				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2(-pixelOffset, pixelOffset) * offset);
+				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2( pixelOffset, pixelOffset) * offset);
+				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2( pixelOffset,-pixelOffset) * offset);
+				color += SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv + float2(-pixelOffset,-pixelOffset) * offset);
 
 				return color * .21f;
 			}

@@ -5,4 +5,5 @@ using UnityEngine;
 public class OutlinesContainer : ScriptableObject
 {
     public List<OutlineConfigs> Outlines;
+    public LayerMask DisposeBatchMask;
 }

@@ -11,14 +11,14 @@ public class RenderMultipleObjectsPass : ScriptableRenderPass
 
     private List<FilteringSettings> _filteringSettings;
     private RenderStateBlock _renderStateBlock;
-    private List<OutlineBatchesResolver.OutlineBatch> _batchesToRender = new List<OutlineBatchesResolver.OutlineBatch>();
+    private List<OutlineBatchesResolver.OutlineBatch> _batchesToRender = new List<OutlineBatchesResolver.OutlineBatch>(10);
 
-    public RenderMultipleObjectsPass(ref RTHandle destination, ref List<OutlineBatchesResolver.OutlineBatch> layersToRender)
+    public RenderMultipleObjectsPass(ref RTHandle destination, ref List<OutlineBatchesResolver.OutlineBatch> batchesToRender)
     {
         _destination = destination;
-        _batchesToRender = layersToRender;
+        _batchesToRender = batchesToRender;
 
-        _filteringSettings = new List<FilteringSettings>();
+        _filteringSettings = new List<FilteringSettings>(10);
     }
 
     public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -31,7 +31,7 @@ public class RenderMultipleObjectsPass : ScriptableRenderPass
 
         foreach (var batch in _batchesToRender)
         {
-            _filteringSettings.Add(new FilteringSettings(RenderQueueRange.all, batch.Data.Configs.Layer));
+            _filteringSettings.Add(new FilteringSettings(RenderQueueRange.all, batch.CurrentRenderLayer));
         }
 
         RenderingUtils.ReAllocateIfNeeded(
