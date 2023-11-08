@@ -2,8 +2,9 @@ Shader "Custom/Outline/OverrideObjectsTransparentMaterial"
 {
     Properties
     { 
-        _BaseMap("Base Map", 2D) = "white" {}
         _BaseColor("Base color", Color) = (1, 1, 1, 1)
+        [HideInInspector] _BaseMap("Base Map", 2D) = "white" {}
+        [HideInInspector] _AlphaPercentage("Alpha percentage", Float) = 0
     }
 
     SubShader
@@ -36,6 +37,7 @@ Shader "Custom/Outline/OverrideObjectsTransparentMaterial"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 float4 _BaseColor;
+                float _AlphaPercentage;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -49,6 +51,7 @@ Shader "Custom/Outline/OverrideObjectsTransparentMaterial"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                color *= _AlphaPercentage;
                 return color;
             }
             ENDHLSL

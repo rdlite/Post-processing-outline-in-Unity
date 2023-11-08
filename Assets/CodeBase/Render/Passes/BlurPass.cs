@@ -33,6 +33,7 @@ public class BlurPass : ScriptableRenderPass
 
         var colorDesc = renderingData.cameraData.cameraTargetDescriptor;
         colorDesc.depthBufferBits = 0;
+        colorDesc.colorFormat = RenderTextureFormat.ARGBHalf;
 
         RenderingUtils.ReAllocateIfNeeded(ref _destination, colorDesc, name: "_OutlineBluredTexture");
 

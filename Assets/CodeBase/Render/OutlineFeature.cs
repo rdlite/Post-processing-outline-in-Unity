@@ -9,7 +9,6 @@ public class OutlineFeature : ScriptableRendererFeature
     [Serializable]
     public class RenderSettings
     {
-        public Material LayerMaterial = null;
         public bool ShowInSceneView = true;
     }
 
@@ -28,8 +27,8 @@ public class OutlineFeature : ScriptableRendererFeature
     [SerializeField] private Material _outlineMaterial;
     [SerializeField] private RenderPassEvent _renderPassEvent;
 
-    private Dictionary<LayerMask, Color> _layersToRender = new Dictionary<LayerMask, Color>();
-    private Dictionary<LayerMask, int> _layersToCounter = new Dictionary<LayerMask, int>();
+    private List<OutlineBatchesResolver.OutlineBatch> _batchesToRender = new List<OutlineBatchesResolver.OutlineBatch>();
+    private Dictionary<LayerMask, int> _batchesToCount = new Dictionary<LayerMask, int>();
 
     private RTHandle _bluredTexture;
     private RTHandle _renderTexture;
@@ -38,34 +37,39 @@ public class OutlineFeature : ScriptableRendererFeature
     private BlurPass _blurPass;
     private OutlinePass _outlinePass;
 
-    public void AddLayerToRender(LayerMask mask, Color color)
+    public void AddLayerToRender(OutlineBatchesResolver.OutlineBatch batch)
     {
-        if (!_layersToCounter.ContainsKey(mask))
+        if (!_batchesToRender.Contains(batch))
         {
-            _layersToCounter.Add(mask, 1);
-            _layersToRender.Add(mask, color);
+            _batchesToRender.Add(batch);
+        }
+
+        if (!_batchesToCount.ContainsKey(batch.Data.Configs.Layer))
+        {
+            _batchesToCount.Add(batch.Data.Configs.Layer, 1);
         }
         else
         {
-            _layersToCounter[mask]++;
+            _batchesToCount[batch.Data.Configs.Layer]++;
         }
     }
 
-    public void RemoveLayerFromRender(LayerMask mask, Color color)
+    public void RemoveLayerFromRender(OutlineBatchesResolver.OutlineBatch batch)
     {
-        if (_layersToCounter.ContainsKey(mask))
+        if (_batchesToRender.Contains(batch))
         {
-            _layersToCounter[mask]--;
-            if (_layersToRender.ContainsKey(mask))
-            {
-                _layersToRender.Remove(mask);
-            }
+            _batchesToRender.Remove(batch);
+        }
+
+        if (_batchesToCount.ContainsKey(batch.Data.Configs.Layer))
+        {
+            _batchesToCount[batch.Data.Configs.Layer]--;
         }
     }
 
     public override void Create()
     {
-        _renderPass = new RenderMultipleObjectsPass(ref _renderTexture, ref _layersToRender, _renderSettings.LayerMaterial);
+        _renderPass = new RenderMultipleObjectsPass(ref _renderTexture, ref _batchesToRender);
         _blurPass = new BlurPass(ref _bluredTexture, _blurSettings.BlurMaterial, _blurSettings.DownSample, _blurSettings.PassesCount, _renderPass);
         _outlinePass = new OutlinePass(_outlineMaterial, _renderPass, _blurPass);
 
@@ -80,7 +84,7 @@ public class OutlineFeature : ScriptableRendererFeature
         if (cameraType == CameraType.Preview) return;
         if (!_renderSettings.ShowInSceneView && cameraType == CameraType.SceneView) return;
 
-        if (_layersToRender.Count != 0)
+        if (_batchesToRender.Count != 0)
         {
             renderer.EnqueuePass(_renderPass);
             renderer.EnqueuePass(_blurPass);
@@ -94,8 +98,8 @@ public class OutlineFeature : ScriptableRendererFeature
 
         if (disposing)
         {
-            _layersToRender.Clear();
-            _layersToCounter.Clear();
+            _batchesToRender.Clear();
+            _batchesToCount.Clear();
         }
     }
 }

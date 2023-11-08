@@ -10,49 +10,35 @@ public class RenderMultipleObjectsPass : ScriptableRenderPass
     private RTHandle _destination;
 
     private List<FilteringSettings> _filteringSettings;
-    private List<Color> _colors;
-    private List<Material> _layerMaterials;
     private RenderStateBlock _renderStateBlock;
-    private Dictionary<LayerMask, Color> _layersToRender = new Dictionary<LayerMask, Color>();
-    private int BASE_COLOR_HASH = Shader.PropertyToID("_BaseColor");
+    private List<OutlineBatchesResolver.OutlineBatch> _batchesToRender = new List<OutlineBatchesResolver.OutlineBatch>();
 
-    public RenderMultipleObjectsPass(ref RTHandle destination, ref Dictionary<LayerMask, Color> layersToRender, Material layerMaterial)
+    public RenderMultipleObjectsPass(ref RTHandle destination, ref List<OutlineBatchesResolver.OutlineBatch> layersToRender)
     {
         _destination = destination;
-        _layersToRender = layersToRender;
+        _batchesToRender = layersToRender;
 
         _filteringSettings = new List<FilteringSettings>();
-        _colors = new List<Color>();
-        _layerMaterials = new List<Material>(10);
-
-        if (_layerMaterials.Count == 0 && layerMaterial != null)
-        {
-            for (int i = 0; i < 10; i++)
-            {
-#if UNITY_EDITOR
-                _layerMaterials.Add(CoreUtils.CreateEngineMaterial("Custom/Outline/OverrideObjectsTransparentMaterial"));
-#else
-                _layerMaterials.Add(Object.Instantiate(layerMaterial));
-#endif
-            }
-        }
     }
 
     public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
     {
         var colorDesc = renderingData.cameraData.cameraTargetDescriptor;
         colorDesc.depthBufferBits = 0;
+        colorDesc.colorFormat = RenderTextureFormat.ARGBHalf;
 
         _filteringSettings.Clear();
-        _colors.Clear();
-        
-        foreach (var layer in _layersToRender)
+
+        foreach (var batch in _batchesToRender)
         {
-            _filteringSettings.Add(new FilteringSettings(RenderQueueRange.all, layer.Key));
-            _colors.Add(layer.Value);
+            _filteringSettings.Add(new FilteringSettings(RenderQueueRange.all, batch.Data.Configs.Layer));
         }
 
-        RenderingUtils.ReAllocateIfNeeded(ref _destination, colorDesc, wrapMode: TextureWrapMode.Clamp, name: "_DestinationRenderTexture");
+        RenderingUtils.ReAllocateIfNeeded(
+            ref _destination, 
+            colorDesc, 
+            wrapMode: TextureWrapMode.Clamp, 
+            name: "_DestinationRenderTexture");
 
         RTHandle rtCameraDepth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
 
@@ -81,8 +67,7 @@ public class RenderMultipleObjectsPass : ScriptableRenderPass
 
                 foreach (var filteringSetting in _filteringSettings)
                 {
-                    drawingSettings.overrideMaterial = _layerMaterials[it];
-                    _layerMaterials[it].SetColor(BASE_COLOR_HASH, _colors[it]);
+                    drawingSettings.overrideMaterial = _batchesToRender[it].OverrideMaterial;
                     FilteringSettings settings = filteringSetting;
 
                     context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref settings, ref _renderStateBlock);

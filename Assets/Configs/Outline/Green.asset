@@ -16,5 +16,6 @@ MonoBehaviour:
   Layer:
     serializedVersion: 2
     m_Bits: 512
-  BlendSpeed: 1
-  Intensity: 0.5
+  OverrideMaterial: {fileID: 2100000, guid: f6aea42920613764fae212d304fc336f, type: 2}
+  BlendDuration: 0.2
+  Intensity: 0.4

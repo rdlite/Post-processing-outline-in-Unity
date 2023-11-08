@@ -30,7 +30,6 @@ public class OutlinePass : ScriptableRenderPass
         ConfigureTarget(_destination);
     }
 
-    [System.Obsolete]
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
         var cmd = CommandBufferPool.Get(_profilerTag);
